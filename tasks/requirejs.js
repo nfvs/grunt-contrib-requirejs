@@ -29,6 +29,7 @@ module.exports = function(grunt) {
 
     var done = this.async();
     var options = this.options({
+      banner: '',
       logLevel: grunt.option('verbose') ? LOG_LEVEL_TRACE : LOG_LEVEL_WARN,
       done: function(done, response){
         done();
@@ -42,6 +43,15 @@ module.exports = function(grunt) {
         grunt.fail.warn('There was an error while processing your done function: "' + e + '"');
       }
     };
+
+    if (options.banner) {
+      var banner = options.banner.replace(/\r\n/g, '\n');
+      delete options.banner;
+      var outputFile = options.out;
+      options.out = function(text) {
+        grunt.file.write(outputFile, banner + text, {encoding: 'utf8'});
+      };
+    }
 
     requirejs.optimize(options, tryCatch.bind(null, options.done, done));
   });
